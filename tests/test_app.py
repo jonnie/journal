@@ -40,7 +40,9 @@ class JournalAppTests(unittest.TestCase):
         self._tmp = tempfile.TemporaryDirectory()
         self.addCleanup(self._tmp.cleanup)
         self.root = Path(self._tmp.name)
-        self.data_path = self.root / "data"
+        # resolved, like the production DATA (safe_path compares resolved paths;
+        # macOS /var and Windows short user names are symlinks/aliases)
+        self.data_path = (self.root / "data").resolve()
         self.config_path = self.root / "config.json"
         self._orig = (appmod.DATA, appmod.CONFIG)
         appmod.DATA, appmod.CONFIG = self.data_path, self.config_path
