@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Journal</title>
+<link rel="stylesheet" href="/static/style.css">
+<script>document.documentElement.dataset.theme =
+  localStorage.journal_theme ||
+  (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+</script>
+</head>
+<body class="authed">
+<header class="topbar">
+  <div class="topbar-left">
+    <button class="icon-btn" id="btn-tree" title="Show/hide entries" aria-pressed="true">
+      <svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+    </button>
+    <h1>Journal</h1>
+  </div>
+  <div class="topbar-right">
+    <span id="save-status" class="save-status"></span>
+    <button class="icon-btn" id="btn-preview" title="Show/hide preview" aria-pressed="true">
+      <svg viewBox="0 0 24 24"><path d="M2 12s3.5-6.5 10-6.5S22 12 22 12s-3.5 6.5-10 6.5S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg>
+    </button>
+    <button class="icon-btn" id="btn-theme" title="Toggle light/dark mode">
+      <svg class="icon-moon" viewBox="0 0 24 24"><path d="M20.5 14.5A8.5 8.5 0 1 1 9.5 3.5a7 7 0 1 0 11 11Z"/></svg>
+      <svg class="icon-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4.5"/><path d="M12 2.5v2.5M12 19v2.5M2.5 12H5M19 12h2.5M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M19.1 4.9l-1.8 1.8M6.7 17.3l-1.8 1.8"/></svg>
+    </button>
+  </div>
+</header>
+
+<main class="layout" id="layout">
+  <aside class="panel tree-panel" id="tree-panel">
+    <div class="create-row">
+    <button class="create-btn" id="btn-create-today">
+      <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+      Today
+    </button>
+    <button class="create-btn" id="btn-create-tomorrow">
+      <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+      Tomorrow
+    </button>
+    </div>
+    <nav id="tree" class="tree"></nav>
+  </aside>
+
+  <section class="panel editor-panel">
+  <div class="toolbar" id="toolbar" role="toolbar" aria-label="Insert markdown syntax"></div>
+    <div class="editor-wrap" id="editor-wrap">
+      <pre id="highlight" aria-hidden="true"></pre>
+      <textarea id="editor" spellcheck="false" placeholder="Start writing…"></textarea>
+    </div>
+  </section>
+
+  <section class="panel preview-panel" id="preview-panel">
+    <div id="preview" class="markdown-body"></div>
+  </section>
+</main>
+
+<div class="modal" id="conflict-modal" hidden>
+  <div class="modal-card">
+    <h2>File changed</h2>
+    <p>This file has changed on disk since you opened it — it may have been
+    edited on another device. Accept the version on disk (your edits on this
+    device will be discarded), or keep this device's version (it will be saved
+    over the one on disk).</p>
+    <div class="modal-actions">
+      <button class="create-btn" id="conflict-accept">Accept version on disk</button>
+      <button class="create-btn secondary" id="conflict-keep">Keep this device's version</button>
+    </div>
+  </div>
+</div>
+
+<script src="/static/marked.min.js"></script>
+<script src="/static/app.js"></script>
+</body>
+</html>

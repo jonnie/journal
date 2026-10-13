@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+
+# Local data (journal entries)
+data/
+
+# Local configuration (created by scripts/set_password.py)
+config.json
+
+# Local systemd unit (machine-specific paths)
+journal.service
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
