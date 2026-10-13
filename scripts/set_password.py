@@ -4,6 +4,7 @@
 Stores a salted scrypt hash in config.json (never plaintext) and ensures
 a session-signing secret exists. Must match SCRYPT_KW in app.py.
 """
+
 import getpass
 import hashlib
 import json
@@ -13,7 +14,7 @@ from pathlib import Path
 
 CONFIG = Path(__file__).resolve().parent.parent / "config.json"
 # scrypt params — must match SCRYPT_KW in app.py
-SCRYPT_KW = {"n": 2 ** 14, "r": 8, "p": 1}
+SCRYPT_KW = {"n": 2**14, "r": 8, "p": 1}
 
 
 def main() -> int:

@@ -57,10 +57,14 @@ class JournalAppTests(unittest.TestCase):
 
     def set_config(self, password="pw-123", secret=SECRET):
         salt = secrets.token_bytes(16)
-        self.config_path.write_text(json.dumps({
-            "password": scrypt_hash(password, salt),
-            "secret": secret,
-        }))
+        self.config_path.write_text(
+            json.dumps(
+                {
+                    "password": scrypt_hash(password, salt),
+                    "secret": secret,
+                }
+            )
+        )
 
     def login(self, password="pw-123"):
         self.set_config(password=password)
@@ -125,8 +129,7 @@ class JournalAppTests(unittest.TestCase):
     def test_expired_token_rejected(self):
         self.set_config(secret=SECRET)
         expiry = str(int(time.time()) - 10)
-        sig = hmac.new(SECRET.encode(), expiry.encode(),
-                       hashlib.sha256).hexdigest()
+        sig = hmac.new(SECRET.encode(), expiry.encode(), hashlib.sha256).hexdigest()
         self.client.cookies.set(appmod.COOKIE, f"{expiry}.{sig}")
         self.assertEqual(self.client.get("/api/tree").status_code, 401)
 
@@ -170,13 +173,17 @@ class JournalAppTests(unittest.TestCase):
         today = date.today()
         r = self.client.post("/api/create")
         self.assertEqual(r.status_code, 200)
-        name = (f"{today.year}/{appmod.MONTHS[today.month - 1]}"
-                f"/{today.strftime('%d-%m-%Y.md')}")
+        name = (
+            f"{today.year}/{appmod.MONTHS[today.month - 1]}"
+            f"/{today.strftime('%d-%m-%Y.md')}"
+        )
         self.assertEqual(r.json()["name"], name)
         self.assertTrue((appmod.DATA / name).is_file())
         header = self._read(name).splitlines()[0]
-        want = (f"# {today.strftime('%A')} {appmod._ordinal(today.day)} "
-                f"{appmod.MONTHS[today.month - 1]} {today.year}")
+        want = (
+            f"# {today.strftime('%A')} {appmod._ordinal(today.day)} "
+            f"{appmod.MONTHS[today.month - 1]} {today.year}"
+        )
         self.assertEqual(header, want)
 
     def test_create_entry_is_idempotent(self):
@@ -191,17 +198,17 @@ class JournalAppTests(unittest.TestCase):
         self.login()
         r = self.client.post("/api/create", params={"offset": 1})
         tomorrow = date.today() + timedelta(days=1)
-        name = (f"{tomorrow.year}/{appmod.MONTHS[tomorrow.month - 1]}"
-                f"/{tomorrow.strftime('%d-%m-%Y.md')}")
+        name = (
+            f"{tomorrow.year}/{appmod.MONTHS[tomorrow.month - 1]}"
+            f"/{tomorrow.strftime('%d-%m-%Y.md')}"
+        )
         self.assertEqual(r.json()["name"], name)
         self.assertTrue((appmod.DATA / name).is_file())
 
     def test_get_file_returns_content_and_hash(self):
         self.login()
         self._make_file("2026/January/05-01-2026.md", "# Jan 5\n")
-        r = self.client.get(
-            "/api/file", params={"name": "2026/January/05-01-2026.md"}
-        )
+        r = self.client.get("/api/file", params={"name": "2026/January/05-01-2026.md"})
         self.assertEqual(r.status_code, 200)
         body = r.json()
         self.assertEqual(body["content"], "# Jan 5\n")
@@ -209,9 +216,7 @@ class JournalAppTests(unittest.TestCase):
 
     def test_get_file_missing_returns_404(self):
         self.login()
-        r = self.client.get(
-            "/api/file", params={"name": "2026/January/05-01-2026.md"}
-        )
+        r = self.client.get("/api/file", params={"name": "2026/January/05-01-2026.md"})
         self.assertEqual(r.status_code, 404)
 
     def test_put_file_updates_with_matching_base_hash(self):
@@ -220,8 +225,7 @@ class JournalAppTests(unittest.TestCase):
         self._make_file(name, "v1")
         r = self.client.put(
             "/api/file",
-            json={"name": name, "content": "v2",
-                  "base_hash": appmod.file_hash("v1")},
+            json={"name": name, "content": "v2", "base_hash": appmod.file_hash("v1")},
         )
         self.assertEqual(r.status_code, 200)
         self.assertEqual(r.json()["hash"], appmod.file_hash("v2"))
@@ -231,9 +235,7 @@ class JournalAppTests(unittest.TestCase):
         # the UI flow: /api/create makes the parent dirs, then a save
         self.login()
         name = self.client.post("/api/create").json()["name"]
-        r = self.client.put(
-            "/api/file", json={"name": name, "content": "# new\n- a"}
-        )
+        r = self.client.put("/api/file", json={"name": name, "content": "# new\n- a"})
         self.assertEqual(r.status_code, 200)
         self.assertEqual(self._read(name), "# new\n- a")
 
@@ -282,8 +284,9 @@ class JournalAppTests(unittest.TestCase):
         tree = r.json()
         self.assertEqual([y["name"] for y in tree], ["2025", "2026"])
         y2026 = tree[1]
-        self.assertEqual([m["name"] for m in y2026["children"]],
-                         ["January", "December"])
+        self.assertEqual(
+            [m["name"] for m in y2026["children"]], ["January", "December"]
+        )
         jan = y2026["children"][0]
         self.assertEqual(
             [f["name"] for f in jan["children"]],
@@ -306,9 +309,19 @@ class JournalAppTests(unittest.TestCase):
 class OrdinalTests(unittest.TestCase):
     def test_ordinals(self):
         cases = {
-            1: "1st", 2: "2nd", 3: "3rd", 4: "4th", 10: "10th",
-            11: "11th", 12: "12th", 13: "13th", 21: "21st",
-            22: "22nd", 23: "23rd", 31: "31st", 100: "100th",
+            1: "1st",
+            2: "2nd",
+            3: "3rd",
+            4: "4th",
+            10: "10th",
+            11: "11th",
+            12: "12th",
+            13: "13th",
+            21: "21st",
+            22: "22nd",
+            23: "23rd",
+            31: "31st",
+            100: "100th",
             111: "111th",
         }
         for day, want in cases.items():
@@ -337,14 +350,11 @@ class SetPasswordTests(unittest.TestCase):
             self.assertEqual(self.ps.main(), 1)
 
     def test_mismatched_password_rejected(self):
-        with mock.patch.object(
-            self.ps.getpass, "getpass", side_effect=["a", "b"]
-        ):
+        with mock.patch.object(self.ps.getpass, "getpass", side_effect=["a", "b"]):
             self.assertEqual(self.ps.main(), 1)
 
     def test_sets_password_and_secret(self):
-        with mock.patch.object(self.ps.getpass, "getpass",
-                               return_value="pw-123"):
+        with mock.patch.object(self.ps.getpass, "getpass", return_value="pw-123"):
             self.assertEqual(self.ps.main(), 0)
         cfg = json.loads(self.config.read_text(encoding="utf-8"))
         self.assertEqual(len(cfg["password"].split("$")), 2)
@@ -355,8 +365,7 @@ class SetPasswordTests(unittest.TestCase):
 
     def test_preserves_existing_secret(self):
         self.config.write_text(json.dumps({"secret": "keepme"}))
-        with mock.patch.object(self.ps.getpass, "getpass",
-                               return_value="pw-123"):
+        with mock.patch.object(self.ps.getpass, "getpass", return_value="pw-123"):
             self.assertEqual(self.ps.main(), 0)
         cfg = json.loads(self.config.read_text(encoding="utf-8"))
         self.assertEqual(cfg["secret"], "keepme")
